@@ -1,0 +1,10 @@
+MongoDB shell version: 2.4.12
+connecting to: receipting
+transNo recBatch recNum stnNum recType amtdue amttendered customer
+12 A7   A00012   undefined   spu   70 SWAZIDENTALSERB8491. 
+13 A7   A00013   undefined   capital   90 MILDRED ABIGAIL CARMICHAEL
+14 A7   A00014   undefined   deposits   78 SWAZIDENTALSERB8491. 
+15 A7   A00015   undefined   visits   98 Vanessa
+16 A7   A00016   undefined   otherPayments   90 Lawrence
+17 A8   A00017   undefined   spu   60 SWAZIDENTALSERB8491. 
+18 A8   A00018   21   spu   90 SWAZIDENTALSERB8491. 
