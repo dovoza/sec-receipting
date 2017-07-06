@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <title>Licando</title>
+    <meta content="IE=edge" http-equiv="x-ua-compatible">
+    <meta content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <!-- Icons -->
+    <link href="css/ionicons.min.css" media="all" rel="stylesheet" type="text/css">
+    <!-- Styles -->
+    <link href="css/keyframes.css" rel="stylesheet" type="text/css">
+    <link href="css/materialize.min.css" rel="stylesheet" type="text/css">
+    <link href="css/swiper.css" rel="stylesheet" type="text/css">
+    <link href="css/swipebox.min.css" rel="stylesheet" type="text/css">
+    <link href="css/style.css" rel="stylesheet" type="text/css">
+    <script src="js/jquery-2.1.0.min.js"></script>
+
+    <script type="text/javascript">
+
+      function addCartItem(itemName, itemPrice) {
+        var cart = JSON.parse(localStorage.getItem("cart"));
+        itemPrice = Number(itemPrice);
+
+        $.each(cart, function(i){
+            if(cart[i].itemName === itemName) {
+                cart[i].quantity += 1;
+                cart[i].price = Number(cart[i].price+ itemPrice);
+            }
+        });
+
+        localStorage.setItem('cart', JSON.stringify(cart));
+        var storeMinOrder = localStorage.getItem("storeMinOrder");
+        var storeDelivery = localStorage.getItem("storeDelivery");
+        var deliveryAmout = 0;
+
+        if (storeDelivery !== "none") {
+          deliveryAmout = storeDelivery;
+          
+          $('#deliveryUl').append(`<ul class="collapsible checkout-header animated fadeindown delay-2" data-collapsible="accordion">
+            <li>
+              <div class="collapsible-header">
+                Delivery Location
+                <i class="ion-android-arrow-dropdown"></i>
+              </div>
+              <div class="collapsible-body z-depth-1">
+                  <div class="input-field">
+                    <i class="ion-location"></i>
+                    <textarea id="textarea1" class="materialize-textarea" placeholder="e.g Mahwalala zone 4, next SCU, flat with black gate"></textarea> 
+                    <label for="textarea1">Describe Location</label>
+                  </div>
+
+              </div>
+            </li>
+          </ul>`);
+        }
+
+        var totalDue = 0;
+        var allItems = '';
+        for (var i=0; i<cart.length; i++) {
+          totalDue += cart[i].price;
+          allItems += `
+                  `+cart[i].quantity+` x &nbsp;
+                  <img class="checkout-image" src="http://asidle-booleancorp.rhcloud.com`+cart[i].icon+`" alt="">
+                  <div class="checkout-product-title">
+                    <h6>`+cart[i].itemName+`<span class="right">E `+Number(cart[i].price).toFixed(2)+`&nbsp;<a onclick="addCartItem('`+cart[i].itemName+`',`+cart[i].eachPrice+`);"><i class="ion-plus-circled"></i></a>&nbsp;<a onclick="removeCartItem('`+cart[i].itemName+`',`+cart[i].eachPrice+`);"><i class="ion-minus-circled"></i></a></span></h6>
+                  </div>
+                  </br></br>`;
+        }
+        document.getElementById("totalDue").innerHTML = 'E '+Number(totalDue).toFixed(2);
+        document.getElementById("totalSub").innerHTML = 'E '+Number(totalDue).toFixed(2);
+        document.getElementById("confirmCost").innerHTML = 'E '+Number(totalDue).toFixed(2);
+        document.getElementById("custCart").innerHTML = allItems;
+      }
+
+      function removeCartItem(itemName, itemPrice) {
+        var cart = JSON.parse(localStorage.getItem("cart"));
+        itemPrice = Number(itemPrice);
+        
+        $.each(cart, function(i){
+            if(cart[i].itemName === itemName) {
+                cart[i].quantity -= 1;
+
+                cart[i].price = cart[i].price - itemPrice;
+
+                if (cart[i].quantity === 0) {
+                  cart.splice(i,1);
+                }
+            }
+        });
+
+        localStorage.setItem('cart', JSON.stringify(cart));
+        var totalDue = 0;
+        var allItems = '';
+        for (var i=0; i<cart.length; i++) {
+          totalDue += cart[i].price;
+          allItems += `
+                  `+cart[i].quantity+` x &nbsp;
+                  <img class="checkout-image" src="http://asidle-booleancorp.rhcloud.com`+cart[i].icon+`" alt="">
+                  <div class="checkout-product-title">
+                    <h6>`+cart[i].itemName+`<span class="right">E `+Number(cart[i].price).toFixed(2)+`&nbsp;<a onclick="addCartItem('`+cart[i].itemName+`',`+cart[i].eachPrice+`);"><i class="ion-plus-circled"></i></a>&nbsp;<a onclick="removeCartItem('`+cart[i].itemName+`',`+cart[i].eachPrice+`);"><i class="ion-minus-circled"></i></a></span></h6>
+                  </div>
+                  </br></br>`;
+        }
+
+        var finalDue = (Number(totalDue) + Number(deliveryAmout));
+
+        $('#checkMinOrder').click(function(){
+          if (Number(totalDue) < Number(storeMinOrder)) {
+            $('#modalMinOrder').modal('open');
+          } else {
+            $('#thankyouModal').modal('open');
+          }
+        });
+
+        document.getElementById("totalDue").innerHTML = 'E '+Number(finalDue).toFixed(2);
+        document.getElementById("totalSub").innerHTML = 'E '+Number(totalDue).toFixed(2);
+        document.getElementById("deliveryFee").innerHTML = 'E '+Number(deliveryAmout).toFixed(2);
+        document.getElementById("confirmCost").innerHTML = 'E '+Number(finalDue).toFixed(2);
+        document.getElementById("custCart").innerHTML = allItems;
+      }
+    </script>
+  </head>
+
+  <body>
+    <div class="m-scene" id="main"> <!-- Main Container -->
+
+      <!-- Page Content -->
+      <div id="content" class="page">
+
+        <!-- Toolbar -->
+        <div id="toolbar" class="primary-color">
+          <div class="open-left" id="open-left" data-activates="slide-out-left">
+            <!--<a class="accent-text" href="index.html"><i class="ion-android-home"></i></a>-->
+            <a href="javascript:history.back()" class="open-left"><i class="ion-android-arrow-back"></i></a>
+          </div>
+          <span class="title">Checkout</span>
+          <div class="open-right" id="open-right" data-activates="slide-out">
+          </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="animated fadeinup">
+          <!-- Order Recap -->
+          <ul class="collapsible checkout-header animated fadeindown delay-2" data-collapsible="accordion">
+            <li>
+              <div class="collapsible-header">
+                Show order summary
+                <i class="ion-android-arrow-dropdown"></i>
+              </div>
+              <div class="collapsible-body z-depth-1">
+                <div id="custCart">
+                </div>
+                
+                <div>
+                  <form class="discount">
+                    <div class="input-field">
+                      <a href="store.html" class="btn primary-color">
+                        <i class="ion-arrow-left-c"></i>&nbsp;Add More Items
+                      </a>
+                    </div>
+                  </form>
+                </div>
+                <div>
+                  <!-- Subtotal -->
+                  <div class="subtotal">
+                    <h6>Subtotal <span class="right" id="totalSub"></span></h6>
+                    <span>Delivery <span class="right" id="deliveryFee"></span></span>
+                  </div>
+
+                  <!-- Total -->
+                  <div class="total">
+                    <h4>Total <span class="right" id="totalDue"></span></h4>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+
+          <!-- Customer Info -->
+          <ul class="collapsible checkout-header animated fadeindown delay-2" data-collapsible="accordion">
+            <li>
+              <div class="collapsible-header">
+                Customer Information
+                <i class="ion-android-arrow-dropdown"></i>
+              </div>
+              <div class="collapsible-body z-depth-1">
+
+                  <div class="form-inputs">
+                    <h4>Swazi Mobile Phone Number</h4>
+                    <div class="input-field">
+                      <input id="phone" type="number" class="validate">
+                      <label for="phone">Phone</label>
+                    </div>
+                  </div>
+
+                  <div class="container" id="myMap">
+                    <div id="form-stuff" class="hide">
+                      <div id="locationField">
+                        <input id="autocomplete" placeholder="Enter your address" onFocus="geolocate()" type="text"></input>
+                      </div>
+                      <span><a class="btn btn-primary" href="examples/simple.html">Pick From Map</a>
+
+                      <table id="address">
+                        <tr>
+                          <td class="label">Street address</td>
+                          <td class="slimField"><input class="field" id="street_number" disabled="true"></input>
+                          </td>
+                          <td class="wideField" colspan="2"><input class="field" id="route" disabled="true"></input>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="label">City</td>
+                          <td class="wideField" colspan="3"><input class="field" id="locality" disabled="true"></input>
+                          </td>
+                        </tr>
+                        <tr style="display: none;">
+                          <td class="label">State</td>
+                          <td class="slimField"><input class="field" id="administrative_area_level_1" disabled="true"></input>
+                          </td>
+                          <td class="label">Zip code</td>
+                          <td class="wideField"><input class="field" id="postal_code" disabled="true"></input>
+                          </td>
+                        </tr>
+                        <tr style="display: none;">
+                          <td class="label">Country</td>
+                          <td class="wideField" colspan="3"><input class="field" id="country" disabled="true"></input>
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
+
+                    <div id="map" ></div>
+                  </div>
+
+              </div>
+            </li>
+          </ul>
+
+          <!-- Delivery Location -->
+          <span id="deliveryUl"></span>
+
+          <!-- Payment -->
+          <ul class="collapsible checkout-header animated fadeindown delay-2" data-collapsible="accordion">
+            <li>
+              <div class="collapsible-header">
+                Payment
+                <i class="ion-android-arrow-dropdown"></i>
+              </div>
+              <div class="collapsible-body z-depth-1">
+                  Transaction ID:nqvfh4yp48u84
+                  </br>
+                  GUI ID: 20170523ghzvy
+                  </br>
+                  MSSIDN: 79 xxxx xx
+                  </br>
+                  Customer details: Mr Doe, 3rd Street John Avenue, 79 xxxx xx, Male
+                  </br>
+                  Shipping Method: Collection 
+                  </div>
+                        
+                  </br>
+                  </br>
+                  
+              </div>
+            </li>
+          </ul>
+          <!-- Confirm -->
+          <div class="card">
+            <div class="card-content grey lighten-4">
+              This confirmation serves as an authorization that Swazi Mobile lmtd can debit my airtime with the <span id="confirmCost"></span> which is the total value of my cart.
+              </br></br>
+              <a class="waves-effect red darken-1 btn" href="store.html" style="width: 100%">Go Back to Shop</a> </br></br> 
+              <span id="confirmBtn"></span>
+              </br>
+            </div>
+          </div>
+
+          <!-- Thank you modal -->
+          <div id="thankyouModal" class="modal">
+            <div class="modal-content">
+              <h4>Order Sent</h4>
+              <br>
+              <p>Thank you for making your order with Licando, you will be notified when your order is ready.</p>
+            </div>
+            <div class="modal-footer">
+              <a class="modal-action modal-close waves-effect green darken-1 btn" data-target="modalRating" style="width: 100%">Finish</a>
+            </div>
+          </div>
+
+          <div id="modalMinOrder" class="modal">
+            <div class="modal-content">
+              <h4>Minimum Order</h4>
+              <br>
+              <p>Your selected items are less than the store minimum order</p>
+            </div>
+            <div class="modal-footer">
+              <a class="modal-action modal-close waves-effect amber darken-1 btn" href="store.html" style="width: 100%">Add Items</a>
+            </div>
+          </div>
+
+          <!-- rating modal -->
+          <div id="modalRating" class="modal">
+            <div class="modal-content">
+              <h4 class="modal-title" id="rateHeader"></h4>
+              <hr>
+              <h2 id="ratingFeedBack"></h2>
+              <br>
+              <p id="ratings"><a><i id="star1" class="ion-ios-star-outline"></i>&nbsp;</a><a><i id="star2" class="ion-ios-star-outline"></i>&nbsp;</a><a><i id="star3" class="ion-ios-star-outline"></i>&nbsp;</a><a><i id="star4" class="ion-ios-star-outline"></i>&nbsp;</a><a><i id="star5"class="ion-ios-star-outline"></i></a></p>  
+            </div>
+            <div class="modal-footer">&nbsp;
+              <a class="modal-action modal-close waves-effect red darken-1 btn" href="" id="submitRating">Submit</a>&nbsp;&nbsp;<a class="modal-action modal-close btn btn-inverse" href="index.html" id="notnow" style="margin-right: 10px">Not Now</a>&nbsp;
+            </div>
+          </div>
+        </div> <!-- End of Main Contents -->
+      </div> <!-- End of Page Content -->
+    </div> <!-- End of Page Container -->
+  
+    <script src="js/jquery.swipebox.min.js"></script>   
+    <script src="js/materialize.min.js"></script> 
+
+    <script type="text/javascript">
+      $(document).ready(function () {
+          
+        $("#nextToDelivery").click(function (e) {
+          e.preventDefault();
+
+          $("#custITab").removeClass("active");
+          $("#delTab").addClass("active");
+        })
+
+        var cart = JSON.parse(localStorage.getItem("cart"));
+        var storeMinOrder = localStorage.getItem("storeMinOrder");
+        var storeDelivery = localStorage.getItem("storeDelivery");
+        var deliveryAmout = 0;
+
+        if (storeDelivery !== "none") {
+          deliveryAmout = storeDelivery;
+          console.log(deliveryAmout);
+          $('#deliveryUl').append(`<ul class="collapsible checkout-header animated fadeindown delay-2" data-collapsible="accordion">
+            <li>
+              <div class="collapsible-header">
+                Delivery Location
+                <i class="ion-android-arrow-dropdown"></i>
+              </div>
+              <div class="collapsible-body z-depth-1">
+                  <div class="input-field">
+                    <i class="ion-location"></i>
+                    <textarea id="textarea1" class="materialize-textarea" placeholder="e.g Mahwalala zone 4, next SCU, flat with black gate"></textarea> 
+                    <label for="textarea1">Describe Location</label>
+                  </div>
+
+              </div>
+            </li>
+          </ul>`);
+        }
+
+        if (cart) {
+          $('#confirmBtn').append(`<button class="waves-effect green darken-1 btn" style="width: 100%" id="checkMinOrder">Confirm</button>`);
+        } else {
+          $('#confirmBtn').append(`<button class="waves-effect green darken-1 btn" style="width: 100%" disabled>Confirm</button>`);
+        }
+
+
+        var ratingStore = JSON.parse(localStorage.getItem("ratingStore"));
+
+        $('#rateHeader').append(`Please rate `+ratingStore.name+` `+ratingStore.location);
+
+        var rating = 0;
+
+        $("#star1").click(function (e) {
+          e.preventDefault();
+          rating = 1;
+          $("#star1").css("color","orange");
+          $("#star2").css("color","");
+          $("#star3").css("color","");
+          $("#star4").css("color","");
+          $("#star5").css("color","");
+          
+        });
+
+        $("#star2").click(function (e) {
+          e.preventDefault();
+          rating = 2;
+          $("#star1").css("color","orange");
+          $("#star2").css("color","orange");
+          $("#star3").css("color","");
+          $("#star4").css("color","");
+          $("#star5").css("color","");
+        });
+
+        $("#star3").click(function (e) {
+          e.preventDefault();
+          rating = 3;
+          $("#star1").css("color","orange");
+          $("#star2").css("color","orange");
+          $("#star3").css("color","orange");
+          $("#star4").css("color","");
+          $("#star5").css("color","");
+        });
+
+        $("#star4").click(function (e) {
+          e.preventDefault();
+          rating = 4;
+          $("#star1").css("color","orange");
+          $("#star2").css("color","orange");
+          $("#star3").css("color","orange");
+          $("#star4").css("color","orange");
+          $("#star5").css("color","");
+        })
+
+        $("#star5").click(function (e) {
+          e.preventDefault();
+          rating = 5;
+          $("#star1").css("color","orange");
+          $("#star2").css("color","orange");
+          $("#star3").css("color","orange");
+          $("#star4").css("color","orange");
+          $("#star5").css("color","orange");
+        })
+
+        $('.modal').modal({
+          dismissible: false,
+        });
+
+        
+        $("#submitRating").click(function (e) {
+          $("#submitRating, #notnow").hide();
+          e.preventDefault();
+          var storeRating = {'id':ratingStore.id, 'rating': rating};
+
+          $.ajax({
+            dataType :'json',
+            type : 'post',
+            url : 'http://asidle-booleancorp.rhcloud.com/api/rate',
+            data :  storeRating,
+            success : function(resp){
+              console.log(resp);
+              if (resp.status == '200') {
+                $('#ratingFeedBack').append("Rating successful, Thank you for participating");
+                $("#star1").css("color","");
+                $("#star2").css("color","");
+                $("#star3").css("color","");
+                $("#star4").css("color","");
+                $("#star5").css("color","");
+                $('#modalRating').modal('open');
+
+                setTimeout(function() {
+                  $('#modalRating').modal('open');
+                  $("#submitRating, #notnow").show();
+                  window.location = "index.html";
+                }, 3000);
+
+              } else {
+                $('#ratingFeedBack').append("Something went wrong during rating, report to support");
+              } 
+            }
+          });
+
+        });
+
+        var totalDue = 0;
+        var delivery = 0;
+
+        for (var i=0; i<cart.length; i++) {
+          totalDue += cart[i].price;
+          $('#custCart').append(`
+            `+cart[i].quantity+` x &nbsp;
+            <img class="checkout-image" src="http://asidle-booleancorp.rhcloud.com`+cart[i].icon+`" alt="">
+            <div class="checkout-product-title">
+              <h6>`+cart[i].itemName+`<span class="right">E `+Number(cart[i].price).toFixed(2)+`&nbsp;<a onclick="addCartItem('`+cart[i].itemName+`',`+cart[i].eachPrice+`);"><i class="ion-plus-circled"></i></a>&nbsp;<a onclick="removeCartItem('`+cart[i].itemName+`',`+cart[i].eachPrice+`);"><i class="ion-minus-circled"></i></a></span></h6>
+            </div>
+            </br></br>`);
+        }
+
+        var finalDue = (Number(totalDue) + Number(deliveryAmout));
+
+
+        $('#checkMinOrder').click(function(){
+          if (Number(totalDue) < Number(storeMinOrder)) {
+            $('#modalMinOrder').modal('open');
+          } else {
+            $('#thankyouModal').modal('open');
+          }
+        });
+
+        document.getElementById("totalDue").innerHTML = 'E '+Number(finalDue).toFixed(2);
+        document.getElementById("totalSub").innerHTML = 'E '+Number(totalDue).toFixed(2);
+        document.getElementById("deliveryFee").innerHTML = 'E '+Number(deliveryAmout).toFixed(2);
+        document.getElementById("confirmCost").innerHTML = 'E '+Number(finalDue).toFixed(2);
+
+        //localStorage.removeItem("cart");
+
+        // Accordion
+        $('.collapsible').collapsible({
+            accordion: true
+        });
+    });
+
+    /***************Map Stuff here********************/
+
+    function updateApiKey() {
+        //event.preventDefault();
+
+        //var apiKeyFormElement = document.getElementById('api_key');
+        var key = "AIzaSyABjH2us4O-QDy_cMqizHswtqODODOk6So";
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://maps.googleapis.com/maps/api/js?key=' + key + '&libraries=places&callback=initAutocomplete';
+        script.async = true;
+        script.defer = true;
+
+        document.body.appendChild(script);
+        console.log(key);
+
+        //apiKeyFormElement.disabled = true;
+        //event.target.className = event.target.className + " disabled";
+
+        document.getElementById('form-stuff').className = "show";
+      }
+
+      //document.getElementById('updateApiButton').addEventListener('click', updateApiKey);
+      updateApiKey();
+
+
+      // Google Maps API copy & pasted below:
+      // see https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
+
+      var placeSearch, autocomplete;
+      var componentForm = {
+        street_number: 'short_name',
+        route: 'long_name',
+        locality: 'long_name',
+        administrative_area_level_1: 'short_name',
+        country: 'long_name',
+        postal_code: 'short_name'
+      };
+
+      function initAutocomplete() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: -33.8688, lng: 151.2195},
+          zoom: 13
+        });
+
+        //map.controls[google.maps.ControlPosition.TOP_RIGHT].push(card);
+        // Create the autocomplete object, restricting the search to geographical
+        // location types.
+        autocomplete = new google.maps.places.Autocomplete(
+          /** @type {!HTMLInputElement} */
+          (document.getElementById('autocomplete')), {
+            types: ['geocode']
+          });
+
+        // When the user selects an address from the dropdown, populate the address
+        // fields in the form.
+        autocomplete.addListener('place_changed', fillInAddress);
+      }
+
+      function fillInAddress() {
+        // Get the place details from the autocomplete object.
+        var place = autocomplete.getPlace();
+
+        for (var component in componentForm) {
+          document.getElementById(component).value = '';
+          document.getElementById(component).disabled = false;
+        }
+
+        // Get each component of the address from the place details
+        // and fill the corresponding field on the form.
+        for (var i = 0; i < place.address_components.length; i++) {
+          var addressType = place.address_components[i].types[0];
+          if (componentForm[addressType]) {
+            var val = place.address_components[i][componentForm[addressType]];
+            document.getElementById(addressType).value = val;
+          }
+        }
+      }
+
+      // Bias the autocomplete object to the user's geographical location,
+      // as supplied by the browser's 'navigator.geolocation' object.
+      function geolocate() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            var geolocation = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            var circle = new google.maps.Circle({
+              center: geolocation,
+              radius: position.coords.accuracy
+            });
+            autocomplete.setBounds(circle.getBounds());
+          });
+        }
+      }
+    </script>
+  </body>
+</html>

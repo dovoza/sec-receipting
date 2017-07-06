@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <title>Licando</title>
+    <meta content="IE=edge" http-equiv="x-ua-compatible">
+    <meta content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <!-- Icons -->
+    <link href="css/ionicons.min.css" media="all" rel="stylesheet" type="text/css">
+    <!-- Styles -->
+    <link href="css/keyframes.css" rel="stylesheet" type="text/css">
+    <link href="css/materialize.min.css" rel="stylesheet" type="text/css">
+    <link href="css/swiper.css" rel="stylesheet" type="text/css">
+    <link href="css/swipebox.min.css" rel="stylesheet" type="text/css">
+
+    <script type="text/javascript">
+      function addCartItem(itemName, itemPrice, itemIcon, store) {
+        var cart = JSON.parse(localStorage.getItem("cart"));
+        itemPrice = Number(itemPrice);
+        console.log(itemPrice);
+
+        if (cart) {
+          var exists = false;
+
+          if (cart[0].storeId !== store) {
+            $('#cartModal').modal();
+            $('#cartModal').modal('open'); 
+          }
+
+          $.each(cart, function() {
+            if (this.itemName === itemName) {
+                this.quantity += 1;
+                this.price += itemPrice;
+                exists = true;
+            }
+          });
+
+          if (exists) {
+            localStorage.setItem('cart', JSON.stringify(cart));
+            var options = {
+              style: {
+                main: {
+                  background: "green",
+                  color: "black"
+                }
+              },
+              settings: {
+                duration: 500
+              }
+            };
+            iqwerty.toast.Toast("Item Added!", options);
+          } else {
+            cart.push({itemName: itemName, quantity: 1, price: itemPrice, store: '', icon:itemIcon, eachPrice:itemPrice, storeId:store});
+            localStorage.setItem('cart', JSON.stringify(cart));
+            var options = {
+              style: {
+                main: {
+                  background: "green",
+                  color: "black"
+                }
+              },
+              settings: {
+                duration: 500
+              }
+            };
+            iqwerty.toast.Toast("Item Added!", options);
+          }
+        } else {
+          var cart = new Array();
+          cart.push({itemName: itemName, quantity: 1, price: itemPrice, store: '', icon:itemIcon, eachPrice:itemPrice, storeId:store});
+          localStorage.setItem('cart', JSON.stringify(cart));
+          var options = {
+            style: {
+              main: {
+                background: "green",
+                color: "black"
+              }
+            },
+            settings: {
+              duration: 500
+            }
+          };
+          iqwerty.toast.Toast("Item Added!", options);
+        }          
+      }
+     
+    </script>
+  </head>
+
+  <body>
+    <div class="m-scene" id="main"> <!-- Main Container -->
+      <!-- Page Content -->
+      <div id="content" class="white page">
+        <!-- Toolbar -->
+        <div id="toolbar" class="red darken-1">
+          <nav>
+            <div class="nav-wrapper red darken-1">
+              <!--<a href="index.html" class="brand-logo" id="storeLogo"></a>-->
+              <a href="javascript:history.back()" class="brand-logo open-left" id="storeLogo"><i class="ion-android-arrow-back"></i></a>
+              <ul id="slide-out" class="side-nav">
+                <li><a href="home.html">Home</a></li>
+                <li><a href="checkout.html"><i class="ion-android-cart"></i><span id="totalCart"></span></a></li>
+              </ul>
+              <a href="#" data-activates="slide-out" class="button-collapse"><i class="ion-navicon-round"></i></a>
+            </div>
+          </nav>
+        </div>
+
+        <div class="row">
+          <div class="col s12 m12">
+            <div class="card">
+
+              <!-- main card image -->
+              <div class="card-image" id="storeBanner" style="display: none;">
+              </div>
+
+              <!-- main card contents-->
+              <div class="card-content">
+              <span id="infoProcessor"></span>
+                <br>
+                <div class="row" id="mainRow" style="display: none;">
+                  <div class="col s12">
+                    <ul class="tabs" id="foodItemTypes"></ul>
+                  </div>
+
+                  <span id="mainRowIt"></span>
+                </div>
+
+              </div><!-- main card contents ends -->
+
+              <!-- show options modal -->
+              <div id="modalOptions" class="modal">
+                <div class="modal-content">
+                  <h4>Item Options</h4>
+                  <hr>
+                  <br>
+                  <table class="table">
+                    <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Price</th>
+                          <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                      
+                    </tbody>
+                  </table>
+                </div>
+                <div class="modal-footer">
+                  <a class="modal-action modal-close waves-effect red darken-1 btn" data-target="modalRating">Done</a>
+                </div>
+              </div>
+
+              <div id="cartModal" class="modal">
+              <div class="modal-content">
+                <h4>Warning!</h4>
+                <br>
+                <p>You have an unprocessed cart from another store.</p>
+              </div>
+              <div class="modal-footer">
+              <a class="waves-effect red darken-1 btn" href="store.html" style="width: 100%">Go Back to cart</a>
+              <a class="waves-effect green darken-1 btn" href="store.html" style="width: 100%">Start a new cart</a>
+            </div>
+            </div>
+              <div class="card-action">
+                <a class="waves-effect waves-light btn btn-large animated bouncein delay-4" style="background-color: #FF4081 !important;width: 100%" href="checkout.html">VIEW CART</a>
+              </div>
+            </div> <!-- main card ends -->
+          </div><!-- main column ends -->
+        </div><!-- main row ends -->    
+      </div> <!-- End of Page Content -->
+    </div> <!-- End of Page Container -->
+    
+    <script src="js/jquery-2.1.0.min.js"></script>
+    <script src="js/jquery.swipebox.min.js"></script>   
+    <script src="js/materialize.min.js"></script>
+    <script src="js/toast.min.js"></script>
+
+    <script type="text/javascript">
+      $( document ).ready(function(){
+        var cart = JSON.parse(localStorage.getItem("cart"));
+
+        if (cart) {
+          var totalCart = 0;
+          for (var i=0; i<cart.length; i++) {
+            totalCart += cart[i].price;
+          }
+        } else {
+          var totalCart = 0;
+        }
+
+        $('#totalCart').append('Cart Amount: '+Number(totalCart).toFixed(2));
+
+        $('.button-collapse').sideNav({
+              closeOnClick: true
+            }
+          );
+        
+        $('ul.tabs').tabs();
+
+        $("#infoProcessor").html("<center><img src='img/loader.gif'></center>");
+
+        setTimeout(function(){
+          $("#infoProcessor").html("");
+          $("#mainRow, #storeBanner").show();
+        }, 4000);
+
+        var selectedStoreId = localStorage.getItem("selectedStore");
+        var totalAvRating = 0;
+
+        $.getJSON("http://asidle-booleancorp.rhcloud.com/api/store/"+selectedStoreId, function( data ) {
+          selectedStore = data;
+
+          localStorage.setItem('storeMinOrder', selectedStore.minOrder);
+          if (selectedStore.deliver == 'yes') {
+            if (selectedStore.deliveryFee !== 'free') {
+              localStorage.setItem('storeDelivery', selectedStore.deliveryFee);
+            } else {
+              localStorage.setItem('storeDelivery', 0)
+            }
+          } else {
+              localStorage.setItem('storeDelivery', "none")
+          }
+          
+
+          $.getJSON("http://asidle-booleancorp.rhcloud.com/api/ratings/"+selectedStoreId, function( data ) {
+
+            var storeRatings = data;
+            var totalRatings = 0;
+            for (var r=0;r<storeRatings.length;r++) {
+              totalRatings += Number(storeRatings[r].rating);
+            }
+
+            totalAvRating = totalRatings / storeRatings.length;
+            totalAvRating = Number(totalAvRating).toFixed(2)
+            $('#showStoreRating').append(totalAvRating);
+
+          });
+
+          var workingHrs = selectedStore.workHours;
+          var workingHrsArray = workingHrs.split('-');
+
+          var ratingStore = {name:selectedStore.name, location: selectedStore.location, id:selectedStoreId};
+          localStorage.setItem('ratingStore', JSON.stringify(ratingStore));
+
+          var start = Number(workingHrsArray[0]);
+          var end = Number(workingHrsArray[1]);
+
+          var today = new Date();
+          h = today.getHours();
+          h1 = "";
+          m = today.getMinutes();
+          m1 = "";
+          s = today.getSeconds();
+          s1 = "";
+          if(h < 10)
+           h = '0' + h;
+          if(m < 10)
+           m = '0' + m;
+
+          h1 = h1+h;
+          m1 = m1+m;
+
+          var currentTime = Number(h1+m1);
+          var storeOpened = true;
+          var disabled = '';
+          if (currentTime < start || currentTime > end) {
+            storeOpened = false;
+            disabled = 'disabled';
+          }
+
+          var itemTypes = selectedStore.catergories;
+
+          $('#storeLogo').append('<img src="http://asidle-booleancorp.rhcloud.com'+selectedStore.icon+'">');
+
+          if (storeOpened) {
+            $('#storeBanner').append(`<img src="http://asidle-booleancorp.rhcloud.com`+selectedStore.banner+`">
+                  <span class="card-title flow-text" style="background-color: rgba(0, 0, 0, 0.5); font-size:120%;">`+selectedStore.name+` `+selectedStore.location+` | `+selectedStore.workHours+` <span class="new badge" data-badge-caption="Open"></span>  | <span id="showStoreRating">Rating&nbsp;:&nbsp;</span> </span>`);
+          } else {
+            $('#storeBanner').append(`<img src="http://asidle-booleancorp.rhcloud.com`+selectedStore.banner+`">
+                  <span class="card-title flow-text" style="background-color: rgba(0, 0, 0, 0.5); font-size:120%;">`+selectedStore.name+` `+selectedStore.location+` | `+selectedStore.workHours+`   <span class="new badge" data-badge-caption="Closed"></span> | <span id="showStoreRating">Rating&nbsp;:&nbsp;</span> </span>`);
+          }
+
+          var itemsList = '';
+          var items = '';
+          var storeFood = selectedStore.items;
+
+          for (var t=0; t<itemTypes.length; t++) {
+            if (t == 0) { 
+              itemsList += '<li class="tab" ><a class="active" href="#'+itemTypes[t]+'">'+itemTypes[t]+'</a></li>';
+            } else {
+              itemsList += '<li class="tab" ><a href="#'+itemTypes[t]+'">'+itemTypes[t]+'</a></li>';
+            }
+
+            items += `<div id="`+itemTypes[t]+`" class="col s12">
+                        <div>
+                          <h3>`+itemTypes[t]+`</h3>
+                          <div class="row">`;
+
+            for (var f=0; f<storeFood.length; f++) {
+
+              var foodOptions = [];
+              var disableOptions = 'disabled';
+              if (storeFood[f].options) {
+                disableOptions = '';
+                foodOptions = storeFood[f].options;
+
+                var tableConts = '';
+
+                for (var i=0;i<foodOptions.length; i++) {
+                  tableConts += `
+                    <tr>
+                      <td>`+foodOptions[i].name+`</td><td>`+foodOptions[i].price+`</td><td><button class="waves-effect btn btn-danger" onclick="addCartItem('`+foodOptions[i].name+`','`+foodOptions[i].price+`','`+storeFood[f].icon+`','`+selectedStore._id+`');">Select</button></td>
+                    </tr>
+                  `;
+                }
+                document.getElementById("tableBody").innerHTML = tableConts;
+              }
+              
+
+              if (storeFood[f].category == itemTypes[t]) {
+                items += `<div class="col s12 m6">
+                  <div class="card">
+                    <div class="card-image">
+                      <img src="http://asidle-booleancorp.rhcloud.com`+storeFood[f].icon+`">
+                      <span class="card-title flow-text" style="background-color: rgba(0, 0, 0, 0.5); font-size:120%;">`+storeFood[f].name+` </span>
+                    </div>
+                    <div class="card-content">
+                      `+storeFood[f].description+`     
+                    </div>
+                    <h1 style="color:red;" id="foodPrice`+storeFood[f].name+`">`+storeFood[f].price+`</h1>
+                    <div class="card-action">
+                      <a class="waves-effect red darken-1 btn" onclick="addCartItem('`+storeFood[f].name+`',`+storeFood[f].price+`,'`+storeFood[f].icon+`','`+selectedStore._id+`');">Add to Cart</a>
+                      <a class="waves-effect green darken-1 btn" data-target="modalOptions" `+disableOptions+`>Options</a>
+                    </div>
+
+                  </div>
+                </div>`;
+              } // end if
+            } // end for
+
+            items += `</div>
+                      </div>
+                      </div>`;
+
+            $('#mainRowIt').append(items);
+            items = '';
+          }
+
+          $('#foodItemTypes').append(itemsList);
+          $('ul.tabs').tabs();
+        });
+
+        $('.modal').modal({
+          dismissible: false,
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <title>Licando</title>
+    <meta content="IE=edge" http-equiv="x-ua-compatible">
+    <meta content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <!-- Icons -->
+    <link href="css/ionicons.min.css" media="all" rel="stylesheet" type="text/css">
+    <!-- Styles -->
+    <link href="css/keyframes.css" rel="stylesheet" type="text/css">
+    <link href="css/materialize.min.css" rel="stylesheet" type="text/css">
+    <link href="css/swiper.css" rel="stylesheet" type="text/css">
+    <link href="css/swipebox.min.css" rel="stylesheet" type="text/css">
+    <link href="css/style.css" rel="stylesheet" type="text/css">
+
+    <script type="text/javascript">
+      function retriveStoreId(storeId) {
+        var selectedStore = storeId;
+        localStorage.setItem('selectedStore', selectedStore);
+      }
+
+      var loggedUser = JSON.parse(localStorage.getItem("loggedUser"));
+      
+    </script>
+  </head>
+
+  <body>
+    <div class="m-scene" id="main">
+      <div id="content" class="grey-blue page">
+        <div id="toolbar" class="primary-color">
+          <div class="open-left" id="open-left" data-activates="slide-out-left">
+            <!--<a class="accent-text" href="index.html"><i class="ion-android-home"></i></a>-->
+            <a href="javascript:history.back()" class="open-left"><i class="ion-android-arrow-back"></i></a>
+          </div>
+          <span class="title"><span id="area"></span> Restaurants</span>
+          <div class="open-right" id="open-right" data-activates="slide-out">
+          </div>
+        </div>
+        
+        <div class="p-b-20 animated fadeinup">
+          
+          <!-- Search bar -->
+          <div class="p-20">
+            <nav class="white">
+              <div class="nav-wrapper">
+                <form>
+                  <div class="input-field">
+                    <input id="search" type="search" placeholder="Search restaurants by address or name" required>
+                    <label class="label-icon" for="search"><i class="ion-search"></i></label>
+                    <i class="ion-android-close"></i>
+                  </div>
+                </form>
+              </div>
+            </nav>
+          </div>
+
+          <!-- Search Result -->
+          <ul id="mainC" class="collapsible popout m-l-r-20" data-collapsible="accordion">
+          </ul>
+        </div> <!-- End of Main Contents -->
+      </div> <!-- End of Page Content -->
+    </div> <!-- End of Page Container -->
+    
+    <script src="js/jquery-2.1.0.min.js"></script> 
+    <script src="js/materialize.min.js"></script> 
+
+
+    <script type="text/javascript">
+      $( document ).ready(function(){
+
+        var selectedArea = localStorage.getItem("selectedArea");
+        document.getElementById("area").innerHTML = selectedArea;
+        var selectedAreaStores = new Array();
+
+        $.getJSON("http://asidle-booleancorp.rhcloud.com/api/storeLoc/"+selectedArea, function( data ) {
+
+          selectedAreaStores = data;
+
+          var allAccordions = '';
+
+          for (var s = 0; s < selectedAreaStores.length; s++) {
+            if (selectedAreaStores[s].deliver == 'yes') {
+              deliveryFee = selectedAreaStores[s].deliveryFee;
+            } else {
+              deliveryFee = 'No delivery';
+            }
+
+            menuTypes = selectedAreaStores[s].catergories;
+
+            allAccordions +=
+              `<li class="animated fadeinright delay-1">
+                <div class="collapsible-header"><i class="ion-android-more-vertical right"></i><span><img style=" width:auto; height:100%;" src="http://asidle-booleancorp.rhcloud.com`+selectedAreaStores[s].icon+`" alt=""></span></div>
+
+                <div class="collapsible-body">
+                  <p>Details: `+menuTypes+`</p>
+                <span class="activity-time text-small text-light"><i class="ion-ios-clock-outline m-r-5"></i> <span class="">Min. Order: `+selectedAreaStores[s].minOrder+` | Delivery: `+deliveryFee+` | <a class="waves-effect waves-light btn-large accent-color width-100 m-b-20 animated bouncein delay-1" href="store.html" onclick="retriveStoreId('`+selectedAreaStores[s]._id+`');">View Menu</a></span></span>
+                </div>
+              </li>`;
+          };
+          $("#mainC").append(allAccordions);
+        });
+
+        $("#search").keyup(function(e){
+          e.preventDefault();
+          document.getElementById("mainC").innerHTML = " ";
+          var allAccordions = '';
+          var newData = new Array();
+          var searchTerm = $(this).val();
+
+          for (var i = 0; i<selectedAreaStores.length; i++) {
+            var stName = selectedAreaStores[i].name;
+            var stAddress = selectedAreaStores[i].address;
+
+            console.log("Store name is "+stName);
+            console.log("Address is "+stAddress);
+
+            //if (stName.toLowerCase() == searchTerm.toLowerCase()) {
+            if (stName.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1 || stAddress.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) {
+              console.log("Match");
+              newData.push(selectedAreaStores[i]);
+            }
+
+            if (i == (selectedAreaStores.length - 1)) {
+              document.getElementById("mainC").innerHTML = " ";
+              console.log("The search item is "+searchTerm);
+              if (searchTerm == "" || searchTerm == null || searchTerm == undefined) {
+                redisplay(selectedAreaStores);
+              } else {
+                redisplay(newData);
+              }
+            }
+          }
+
+        });
+
+        function redisplay( data ) {
+          document.getElementById("mainC").innerHTML = " ";
+          var newSelectedAreaStores = data;
+
+          var allAccordions = '';
+
+          for (var s = 0; s < newSelectedAreaStores.length; s++) {
+            if (newSelectedAreaStores[s].deliver == 'yes') {
+              deliveryFee = newSelectedAreaStores[s].deliveryFee;
+            } else {
+              deliveryFee = 'No delivery';
+            }
+
+            menuTypes = newSelectedAreaStores[s].catergories;
+
+            allAccordions +=
+              `<li class="animated fadeinright delay-1">
+                <div class="collapsible-header"><i class="ion-android-more-vertical right"></i><span><img style=" width:auto; height:100%;" src="http://asidle-booleancorp.rhcloud.com`+newSelectedAreaStores[s].icon+`" alt=""></span></div>
+
+                <div class="collapsible-body">
+                  <p>Details: `+menuTypes+`</p>
+                <span class="activity-time text-small text-light"><i class="ion-ios-clock-outline m-r-5"></i> <span class="">Min. Order: `+newSelectedAreaStores[s].minOrder+` | Delivery: `+deliveryFee+` | <a class="waves-effect waves-light btn-large accent-color width-100 m-b-20 animated bouncein delay-1" href="store.html" onclick="retriveStoreId('`+newSelectedAreaStores[s]._id+`');">View Menu</a></span></span>
+                </div>
+              </li>`;
+          };
+          document.getElementById("mainC").innerHTML = " ";
+          $("#mainC").append(allAccordions);
+        };
+
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <title>Licando</title>
+    <meta content="IE=edge" http-equiv="x-ua-compatible">
+    <meta content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <!-- Icons -->
+    <link href="css/ionicons.min.css" media="all" rel="stylesheet" type="text/css">
+    <!-- Styles -->
+    <link href="css/keyframes.css" rel="stylesheet" type="text/css">
+    <link href="css/materialize.min.css" rel="stylesheet" type="text/css">
+    <link href="css/swiper.css" rel="stylesheet" type="text/css">
+    <link href="css/swipebox.min.css" rel="stylesheet" type="text/css">
+    <link href="css/style.css" rel="stylesheet" type="text/css">
+  </head>
+
+  <body>
+    <div class="m-scene" id="main">
+      <h2 style="float:right; color: white; margin-right: 10px" id="loginInfo"></h2>
+      <div id="logincontent" class="grey-blue signup">
+        <div class="signup-form animated fadeinup delay-2 z-depth-1">
+          <center><h1 style="color: yellow">Licando Asidle</h1></center>
+          <span id="loaderImg"><img src="img/loader.gif" width="31px" height="31px"></span>
+          <p id="pickCity" style="display: none;">
+            <i id="boolIcon" class = "icon ion-map"></i>
+            <span id="boolLabel">Where Are You?</span>
+            <select class="browser-default" id="areaChoosen">
+            </select>
+          </p>
+          <p>
+            <!--<i id="boolIcon" class="ion-location"></i>
+            <span id="boolLabel" for="textarea1">Describe Location</span>-->
+
+            <a id="feedme" class="waves-effect waves-light btn-large accent-color width-100 m-b-20 animated bouncein delay-4" href="#">Feed Me</a>
+            <span><a class="btn btn-primary" href="signup.html">Register</a> <a class="btn btn-primary" href="login.html">Login</a></span>
+          </p>
+        </div>
+
+        <div id="loginModal" class="modal">
+          <div class="modal-content">
+            <h4>Error!</h4>
+            <br>
+            <p>Please select your area.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <script src="js/jquery-2.1.0.min.js"></script>
+    <script src="js/jquery.swipebox.min.js"></script>   
+    <script src="js/materialize.min.js"></script> 
+
+    <script type="text/javascript">
+      $( document ).ready(function(){
+
+        setTimeout(function(){
+          $("#loaderImg").hide();
+          $("#pickCity").show();
+        }, 4000);
+
+        var loggedUser = JSON.parse(localStorage.getItem("loggedUser"));
+        
+        if (loggedUser) {
+          $('#loginInfo').append('Welcome <i class="ion-android-contact prefix"></i>'+loggedUser.username+'&nbsp;&nbsp;&nbsp;<button class="btn" id="logout">Logout</button>');
+        }
+
+        $('#logout').click(function() {
+          localStorage.removeItem("loggedUser");
+          window.location = "index.html";
+        });
+
+        $.getJSON("http://asidle-booleancorp.rhcloud.com/api/locations", function( data ) {
+          var locations = data;
+
+          var areasListing = '';
+          for (var l=0; l<locations.length; l++) {
+            areasListing += '<option >'+locations[l].location+'</option>';
+          }
+
+          $('#areaChoosen').append(areasListing);
+        });
+
+        $('.modal').modal({
+          dismissible: false,
+        });
+
+        $('#feedme').click(function() {
+          var selectedArea = $('#areaChoosen').val();
+          if (selectedArea == '--select--' || selectedArea == null) {
+            $('#loginModal').modal();
+            $('#loginModal').modal('open'); 
+          } else {
+            localStorage.setItem('selectedArea', selectedArea);
+            window.location = "home.html";
+          }
+          
+        });
+
+        localStorage.removeItem("cart");
+      });
+
+    </script>
+  </body>
+</html>
